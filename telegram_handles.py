@@ -4,6 +4,9 @@ from google_gemini import get_ai_transaction_details
 from google_sheets import get_sheets_service
 from datetime import datetime
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 def parse_transaction_data(transaction_data, user_message):
     try:
@@ -17,7 +20,7 @@ def parse_transaction_data(transaction_data, user_message):
             '🅿️'
         ]
     except Exception as e:
-        #TODO: add logger here
+        logger.info(f"Received message: {user_message}")
         return 
 
 
@@ -41,7 +44,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sheets_service = get_sheets_service()
     new_row = parse_transaction_data(transaction_data, user_message) 
 
-    #TODO: Append parsed data to sheets
     try:
         sheet_name = os.getenv("SHEET_NAME")
         request = sheets_service.spreadsheets().values().append(
@@ -52,10 +54,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             body={'values': [new_row]}
         )
         response = request.execute()
-        #TODO: ADD logger
+        logger.info(f"Sheet updated: {response}")
         await update.message.reply_text("✅ Transaction successfully added to your budget sheet!")
 
     except Exception as e:
-        #TODO: Add logger
+        logger.error(f"Error updating Google Sheet: {e}")
         await update.message.reply_text("❌ An error occurred while trying to update the spreadsheet.")
 

@@ -2,6 +2,9 @@ import google.generativeai as genai
 from datetime import datetime
 import json
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # --- CATEGORIES & ACCOUNTS ---
 CATEGORIES = [
@@ -45,6 +48,7 @@ def get_ai_transaction_details(text):
         cleaned_response = response.text.strip().replace("```json", "").replace("```", "").strip()
         return json.loads(cleaned_response)
     except Exception as e:
-        #TODO: implement a logger
+        logger.error(f"Error parsing AI response: {e}")
+        logger.error(f"Raw AI response: {response.text}")
         return None
 
