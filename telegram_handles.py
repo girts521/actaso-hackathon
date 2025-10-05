@@ -3,10 +3,10 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from google_gemini import get_ai_transaction_details
 from google_sheets import get_sheets_service
 from datetime import datetime
+import os
 
 def parse_transaction_data(transaction_data, user_message):
     try:
-        service = get_sheets_service()
         new_row = [
             datetime.now().strftime('%Y-%m-%d'),
             transaction_data.get('amount', ''),
@@ -38,7 +38,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Sorry, I could not understand that... Please try again.")
         return
     
-    #TODO: Parse that data and add it into google sheets
-    new_row = parse_transaction_data(transaction_data, user_message)
+    sheets_service = get_sheets_service()
+    new_row = parse_transaction_data(transaction_data, user_message) 
 
     #TODO: Append parsed data to sheets
+    try:
+        sheet_name = os.getenv("SHEET_NAME")
+        request = sheets_service.spreadsheets().values().append(
+                spreadsheetId=os.getenv("SPREADSHEET_ID"),
+                range=f"💵 {sheet_name}",
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body={'values': [new_row]}
+        )
+        response = request.execute()
+        #TODO: ADD logger
+        await update.message.reply_text("✅ Transaction successfully added to your budget sheet!")
+
+    except Exception as e:
+        #TODO: Add logger
+        await update.message.reply_text("❌ An error occurred while trying to update the spreadsheet.")
+
