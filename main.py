@@ -16,7 +16,7 @@ CATEGORIES = [
     "Utilities", "Health & Wellness", "Entertainment", "Subscriptions",
     "Personal Care", "Miscellaneous"
 ]
-ACCOUNTS = ["Girts", "Thao"]
+ACCOUNTS = ["Girts", "Thao", "Default"]
 STATUS_OPTIONS = ["✅", "🅿️", "*<fe0f><20e3>"]
 
 def main():
