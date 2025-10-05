@@ -19,6 +19,7 @@ def parse_transaction_data(transaction_data, user_message):
             transaction_data.get('memo', user_message),
             '🅿️'
         ]
+        return new_row
     except Exception as e:
         logger.info(f"Received message: {user_message}")
         return 
@@ -35,20 +36,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles regular text messages and processes them as transactions."""
     user_message = update.message.text
     await update.message.reply_text("Got it. Preparing your transaction...")
-
+    
     transaction_data = get_ai_transaction_details(user_message)
     if not transaction_data:
         await update.message.reply_text("Sorry, I could not understand that... Please try again.")
         return
-    
     sheets_service = get_sheets_service()
     new_row = parse_transaction_data(transaction_data, user_message) 
-
+    print(f"The row we got: {new_row}")
     try:
         sheet_name = os.getenv("SHEET_NAME")
         request = sheets_service.spreadsheets().values().append(
-                spreadsheetId=os.getenv("SPREADSHEET_ID"),
-                range=f"💵 {sheet_name}",
+            spreadsheetId=os.getenv("SPREADSHEET_ID"),
+            range=f"💵 {sheet_name}",
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body={'values': [new_row]}

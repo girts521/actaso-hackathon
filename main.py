@@ -3,7 +3,8 @@ import logging
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from telegram_handles import start, handle_message
 from dotenv import load_dotenv
-
+import google.generativeai as genai
+from google_gemini import initialize_ai
 load_dotenv()
 
 # --- CONFIGURATION ---
@@ -13,6 +14,9 @@ GOOGLE_SHEETS_CREDENTIALS_FILE = os.getenv("GOOGLE_SHEETS_CREDENTIALS_FILE")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID") 
 SHEET_NAME = os.getenv("SHEET_NAME") 
 
+initialize_ai()
+
+#
 # --- CATEGORIES & ACCOUNTS ---
 CATEGORIES = [
     "Groceries", "Transport", "Dining Out", "Shopping", "Housing",

@@ -6,7 +6,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# --- CATEGORIES & ACCOUNTS ---
+# The model is declared but not initialized
+ai_model = None
+
 CATEGORIES = [
     "Groceries", "Transport", "Dining Out", "Shopping", "Housing",
     "Utilities", "Health & Wellness", "Entertainment", "Subscriptions",
@@ -16,8 +18,16 @@ ACCOUNTS = ["Girts", "Thao"]
 STATUS_OPTIONS = ["✅", "🅿️", "*<fe0f><20e3>"]
 
 # --- GEMINI AI SETUP ---
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-ai_model = genai.GenerativeModel('gemini-1.5-flash')
+def initialize_ai():
+    """Configures the AI model. Call this from main.py AFTER load_dotenv()."""
+    global ai_model
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("FATAL: GEMINI_API_KEY is not set.")
+    
+    genai.configure(api_key=api_key)
+    ai_model = genai.GenerativeModel('gemini-2.5-flash')
+    logger.info("Gemini AI model initialized.")
 
 def get_ai_transaction_details(text):
     """Uses Gemini to parse a natural language message into a transaction."""
